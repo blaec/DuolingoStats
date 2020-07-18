@@ -19,7 +19,8 @@ public class DailyEvents {
         this.totalXp = xp;
     }
 
-    public void mergeWith(Event event) {
+    // TODO probably merge will work here
+    public DailyEvents mergeWith(Event event) {
         String type = event.getType();
         Long xp = event.getXp();
         if (this.dailyXpByType.containsKey(type)) {
@@ -33,10 +34,15 @@ public class DailyEvents {
             this.dailyCountByType.put(type, 1L);
         }
         this.totalXp += event.getXp();
+        return this;
     }
 
     public static DailyEvents ofNew(Event event) {
         return new DailyEvents(event.getStartDate(), event.getType(), event.getXp());
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 
     @Override

@@ -8,7 +8,6 @@ public class Event {
     public static final int SECONDS_PER_MINUTE = 60;
     public static final int SECONDS_PER_HOUR = 3600;
 
-
     private final LocalDateTime start;
     private final String type;
     private final Long xp;
@@ -54,6 +53,6 @@ public class Event {
 
     @Override
     public String toString() {
-        return String.format("%tF %tT | %8s | %-8s %-2d", start, start, dif, type, xp);
+        return String.format("%1$tF %1$tT | %2$8s | %3$-8s %4$-2d", start, dif, type, xp);
     }
 }
