@@ -1,5 +1,7 @@
 package com.blaec.duolingo.model;
 
+import com.blaec.duolingo.enums.Types;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +55,7 @@ public class DailyEvents {
     }
 
     private static String generateType(String type) {
-        return Optional.ofNullable(type).orElse("unknown");
+        return Optional.ofNullable(type).orElse(Types.unknown.name());
     }
 
     public LocalDate getDate() {
@@ -64,10 +66,10 @@ public class DailyEvents {
     public String toString() {
         return String.format("%tF | %s | %s | %s | %s | %4d",
                 date,
-                stats("lesson"),
-                stats("practice"),
-                stats("test"),
-                stats("unknown"),
+                stats(Types.lesson.name()),
+                stats(Types.practice.name()),
+                stats(Types.test.name()),
+                stats(Types.unknown.name()),
                 totalXp);
     }
 

@@ -1,5 +1,6 @@
 package com.blaec.duolingo.jsonsimple;
 
+import com.blaec.duolingo.enums.Types;
 import com.blaec.duolingo.model.DailyEvents;
 import com.blaec.duolingo.model.Event;
 import org.json.simple.JSONArray;
@@ -57,7 +58,7 @@ public class ShowStats {
                 dailyEventsMap.putIfAbsent(startDate, mergedDailyEvent);
             }
             result.append(String.format("%-10s | %-13s | %-13s | %-13s | %-13s | %-4s%n",
-                    "Date", "lesson", "practice", "test", "unknown", "total"));
+                    "Date", Types.lesson, Types.practice, Types.test, Types.unknown, "total"));
             dailyEventsMap.values().forEach(d -> result.append(d.toString()).append("\n"));
             System.out.println(result);
         } catch (IOException | ParseException e) {
