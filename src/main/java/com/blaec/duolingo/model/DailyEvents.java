@@ -38,8 +38,8 @@ public class DailyEvents {
         return this;
     }
 
-    public static DailyEvents ofNew(Event event) {
-        return new DailyEvents(event.getStartDate(), event.getType(), event.getXp());
+    public static DailyEvents from(Event event) {
+        return new DailyEvents(event.calcStartDay(), event.getType(), event.getXp());
     }
 
     public LocalDate getDate() {

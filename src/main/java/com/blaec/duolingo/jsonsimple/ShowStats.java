@@ -11,9 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ShowStats {
     //https://www.duolingo.com/users/etin682286
@@ -39,46 +37,33 @@ public class ShowStats {
 
             // Parse all events and print them
             // TODO try to write via streams or enclose with Callable
-            Map<Integer, Event> eventMap = new HashMap<>();
-            int count = 0;
+            LinkedList<Event> eventList = new LinkedList<>();
             for (Object calendar : calendarList) {
                 Event event = Event.of((JSONObject) calendar);
-                if (eventMap.size() > 0) {
-                    event.setDif(Duration.between(eventMap.get(count - 1).getStart(), event.getStart()));
-                }
-                eventMap.put(count++, event);
+                Duration dif = eventList.isEmpty()
+                        ? Duration.ZERO
+                        : Duration.between(eventList.getLast().getStart(), event.getStart());
+                eventList.add(event.updateDuration(dif));
             }
-            System.out.println(String.format("%-10s %-8s | %-8s | %-8s %-2s", "Date", "Time", "Dif", "Event", "XP"));
-            eventMap.values().forEach(System.out::println);
+            StringBuilder result = new StringBuilder(String.format("%-10s %-8s | %-8s | %-8s %-2s%n", "Date", "Time", "Dif", "Event", "XP"));
+            eventList.forEach(e -> result.append(e.toString()).append("\n"));
 
             // Combine all events by day and print daily stats
             Map<LocalDate, DailyEvents> dailyEventsMap = new TreeMap<>();
-            // TODO try to simplify with computeIfPresent or with streams
-//            eventMap.values().stream()
-////                    .map(DailyEvents::ofNew)
-//                    .collect(Collectors.toMap(
-//                            DailyEvents::getDate,
-//                            event -> new DailyEvents(event),
-//                            DailyEvents::mergeWith));
-//
-//
-////                    .collect(
-////                            Collectors.groupingBy(DailyEvents::getDate),
-////                            Collectors.mapping(DailyEvents::mergeWith())
-////                    );
-            for (Event event : eventMap.values()) {
-                if (!dailyEventsMap.containsKey(event.getStartDate())) {
-                    DailyEvents dailyEvents = DailyEvents.ofNew(event);
-                    dailyEventsMap.put(event.getStartDate(), dailyEvents);
+            for (Event event : eventList) {
+                if (!dailyEventsMap.containsKey(event.calcStartDay())) {
+                    DailyEvents dailyEvents = DailyEvents.from(event);
+                    dailyEventsMap.put(event.calcStartDay(), dailyEvents);
                 } else {
-                    DailyEvents mergedDailyEvents = dailyEventsMap.get(event.getStartDate());
+                    DailyEvents mergedDailyEvents = dailyEventsMap.get(event.calcStartDay());
                     mergedDailyEvents.mergeWith(event);
-                    dailyEventsMap.replace(event.getStartDate(), mergedDailyEvents);
+                    dailyEventsMap.replace(event.calcStartDay(), mergedDailyEvents);
                 }
             }
-            System.out.printf("%-10s | %-13s | %-13s | %-13s | %-13s | %-4s%n",
-                    "Date", "lesson", "practice", "test", "unknown", "total");
-            dailyEventsMap.values().forEach(System.out::println);
+            result.append(String.format("%-10s | %-13s | %-13s | %-13s | %-13s | %-4s%n",
+                    "Date", "lesson", "practice", "test", "unknown", "total"));
+            dailyEventsMap.values().forEach(d -> result.append(d.toString()).append("\n"));
+            System.out.println(result);
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }

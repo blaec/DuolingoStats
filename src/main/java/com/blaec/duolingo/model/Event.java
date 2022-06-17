@@ -10,37 +10,43 @@ public class Event {
 
     private final LocalDateTime start;
     private final String type;
-    private final Long xp;
-    private String dif = "";
+    private final long xp;
+    private String duration = "";
 
-    public static Event of(JSONObject event) {
-        return new Event(event);
+    private Event(LocalDateTime start, String type, long xp) {
+        this.start = start;
+        this.type = type;
+        this.xp = xp;
     }
 
-    private Event(JSONObject event) {
+    private Event(LocalDateTime start, String type, long xp, String dif) {
+        this(start, type, xp);
+        this.duration = dif;
+    }
+
+    public static Event of(JSONObject event) {
         Long seconds = (Long) event.get("datetime");
-        this.start = LocalDateTime.ofInstant(
+        LocalDateTime start = LocalDateTime.ofInstant(
                 Instant.ofEpochMilli(seconds),
                 ZoneId.systemDefault());
-        this.type = (String) event.get("event_type");
-        this.xp = (Long) event.get("improvement");
+        String type = (String) event.get("event_type");
+        long xp = (Long) event.get("improvement");
+
+        return new Event(start, type, xp);
+    }
+
+    public Event updateDuration(Duration duration) {
+        long seconds = duration.getSeconds();
+        long hours = (seconds / SECONDS_PER_HOUR);
+        seconds -= hours * SECONDS_PER_HOUR;
+        long minutes = (seconds / SECONDS_PER_MINUTE);
+        seconds -= minutes * SECONDS_PER_MINUTE;
+
+        return new Event(this.start, this.type, this.xp, String.format("%02d:%02d:%02d", hours, minutes, seconds));
     }
 
     public LocalDateTime getStart() {
         return start;
-    }
-
-    public void setDif(Duration dif) {
-        long seconds = dif.getSeconds();
-        int hours = (int) (seconds / SECONDS_PER_HOUR);
-        seconds -= hours * SECONDS_PER_HOUR;
-        int minutes = (int) (seconds / SECONDS_PER_MINUTE);
-        seconds -= minutes * SECONDS_PER_MINUTE;
-        this.dif = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-    }
-
-    public LocalDate getStartDate() {
-        return start.toLocalDate();
     }
 
     public Long getXp() {
@@ -51,8 +57,12 @@ public class Event {
         return type;
     }
 
+    public LocalDate calcStartDay() {
+        return start.toLocalDate();
+    }
+
     @Override
     public String toString() {
-        return String.format("%1$tF %1$tT | %2$8s | %3$-8s %4$-2d", start, dif, type, xp);
+        return String.format("%1$tF %1$tT | %2$8s | %3$-8s %4$-2d", start, duration, type, xp);
     }
 }
