@@ -52,7 +52,7 @@ public class ShowStats {
             Map<LocalDate, DailyEvents> dailyEventsMap = new TreeMap<>();
             for (Event event : eventList) {
                 LocalDate startDate = event.calcStartDay();
-                DailyEvents prevEvent = dailyEventsMap.getOrDefault(startDate, DailyEvents.create(startDate));
+                DailyEvents prevEvent = dailyEventsMap.getOrDefault(startDate, DailyEvents.empty(startDate));
                 DailyEvents mergedDailyEvent = prevEvent.mergeWith(event);
                 dailyEventsMap.putIfAbsent(startDate, mergedDailyEvent);
             }

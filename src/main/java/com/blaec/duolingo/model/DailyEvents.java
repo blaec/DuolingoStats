@@ -7,32 +7,29 @@ import java.util.Optional;
 
 public class DailyEvents {
     private final LocalDate date;
-    private final Map<String, Long> dailyXpByType;
-    private final Map<String, Long> dailyCountByType;
-    private Long totalXp;
+    private final Map<String, Long> dailyXpByType = new HashMap<>();
+    private final Map<String, Long> dailyCountByType = new HashMap<>();
+    private Long totalXp = 0L;
 
     private DailyEvents(LocalDate date) {
         this.date = date;
-        this.dailyXpByType = new HashMap<>();
-        this.dailyCountByType = new HashMap<>();
-        this.totalXp = 0L;
     }
 
-    private DailyEvents(LocalDate date, String event, Long xp) {
+    private DailyEvents(LocalDate date, String event, Long totalXp) {
         this(date);
-        this.dailyXpByType.put(event, xp);
-        this.dailyCountByType.put(event, 1L);
-        this.totalXp = xp;
-    }
-
-    public DailyEvents(LocalDate date, Map<String, Long> dailyXpByType, Map<String, Long> dailyCountByType, Long totalXp) {
-        this.date = date;
-        this.dailyXpByType = dailyXpByType;
-        this.dailyCountByType = dailyCountByType;
         this.totalXp = totalXp;
+        this.dailyXpByType.put(event, totalXp);
+        this.dailyCountByType.put(event, 1L);
     }
 
-    public static DailyEvents create(LocalDate date) {
+    private DailyEvents(LocalDate date, Map<String, Long> dailyXpByType, Map<String, Long> dailyCountByType, Long totalXp) {
+        this(date);
+        this.totalXp = totalXp;
+        this.dailyXpByType.putAll(dailyXpByType);
+        this.dailyCountByType.putAll(dailyCountByType);
+    }
+
+    public static DailyEvents empty(LocalDate date) {
         return new DailyEvents(date);
     }
 
