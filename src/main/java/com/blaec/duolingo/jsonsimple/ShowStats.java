@@ -32,7 +32,7 @@ public class ShowStats {
 
         // TODO get data from web and save to file
         // TODO get file by request
-        try (FileReader reader = new FileReader(".files/Anja217644.json")) {
+        try (FileReader reader = new FileReader(".files/Zsuzsa82466.json")) {
             JSONArray duolingoList = new JSONArray();
             duolingoList.add(jsonParser.parse(reader));
             JSONArray calendarList = (JSONArray) ((JSONObject) duolingoList.get(0)).get("calendar");
@@ -76,7 +76,8 @@ public class ShowStats {
                     dailyEventsMap.replace(event.getStartDate(), mergedDailyEvents);
                 }
             }
-            System.out.println(String.format("%-10s | %-13s | %-13s | %-13s | %-4s", "Date", "lesson", "practice", "test", "total"));
+            System.out.printf("%-10s | %-13s | %-13s | %-13s | %-13s | %-4s%n",
+                    "Date", "lesson", "practice", "test", "unknown", "total");
             dailyEventsMap.values().forEach(System.out::println);
         } catch (IOException | ParseException e) {
             e.printStackTrace();

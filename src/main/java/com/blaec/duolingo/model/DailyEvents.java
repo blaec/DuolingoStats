@@ -3,6 +3,7 @@ package com.blaec.duolingo.model;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class DailyEvents {
     private final LocalDate date;
@@ -21,7 +22,7 @@ public class DailyEvents {
 
     // TODO probably merge will work here
     public DailyEvents mergeWith(Event event) {
-        String type = event.getType();
+        String type = Optional.ofNullable(event.getType()).orElse("unknown");
         Long xp = event.getXp();
         if (this.dailyXpByType.containsKey(type)) {
             this.dailyXpByType.replace(type, this.dailyXpByType.get(type) + xp);
@@ -47,12 +48,27 @@ public class DailyEvents {
 
     @Override
     public String toString() {
-        return String.format("%tF | %s | %s | %s | %4d", date, stats("lesson"), stats("practice"), stats("test"), totalXp);
+        return String.format("%tF | %s | %s | %s | %s | %4d",
+                date,
+                stats("lesson"),
+                stats("practice"),
+                stats("test"),
+                stats("unknown"),
+                totalXp);
     }
 
     private String stats(String event) {
         Long xp = dailyXpByType.get(event);
         Long count = dailyCountByType.get(event);
-        return String.format("%4s(%2s) /%3s", xp == null ? "-" : xp, xp == null ? "--" : xp / count, count == null ? "-" : count);
+        return String.format("%4s(%2s) /%3s",
+                xp == null
+                        ? "-"
+                        : xp,
+                xp == null
+                        ? "--"
+                        : xp / count,
+                count == null
+                        ? "-"
+                        : count);
     }
 }
