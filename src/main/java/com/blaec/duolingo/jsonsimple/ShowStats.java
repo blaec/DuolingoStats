@@ -12,7 +12,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class ShowStats {
     //https://www.duolingo.com/users/etin682286
@@ -26,6 +29,7 @@ public class ShowStats {
 
     // TODO add logging
     // TODO make executable jar - run with cmd command java -jar <jarname>.jar
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         JSONParser jsonParser = new JSONParser();
 
@@ -53,9 +57,10 @@ public class ShowStats {
             Map<LocalDate, DailyEvents> dailyEventsMap = new TreeMap<>();
             for (Event event : eventList) {
                 LocalDate startDate = event.calcStartDay();
-                DailyEvents prevEvent = dailyEventsMap.getOrDefault(startDate, DailyEvents.empty(startDate));
-                DailyEvents mergedDailyEvent = prevEvent.mergeWith(event);
-                dailyEventsMap.putIfAbsent(startDate, mergedDailyEvent);
+                DailyEvents merged = dailyEventsMap
+                        .getOrDefault(startDate, DailyEvents.empty(startDate))
+                        .mergeWith(event);
+                dailyEventsMap.putIfAbsent(startDate, merged);
             }
             result.append(String.format("%-10s | %-13s | %-13s | %-13s | %-13s | %-4s%n",
                     "Date", Types.lesson, Types.practice, Types.test, Types.unknown, "total"));
