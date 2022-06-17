@@ -51,14 +51,10 @@ public class ShowStats {
             // Combine all events by day and print daily stats
             Map<LocalDate, DailyEvents> dailyEventsMap = new TreeMap<>();
             for (Event event : eventList) {
-                if (!dailyEventsMap.containsKey(event.calcStartDay())) {
-                    DailyEvents dailyEvents = DailyEvents.from(event);
-                    dailyEventsMap.put(event.calcStartDay(), dailyEvents);
-                } else {
-                    DailyEvents mergedDailyEvents = dailyEventsMap.get(event.calcStartDay());
-                    mergedDailyEvents.mergeWith(event);
-                    dailyEventsMap.replace(event.calcStartDay(), mergedDailyEvents);
-                }
+                LocalDate startDate = event.calcStartDay();
+                DailyEvents prevEvent = dailyEventsMap.getOrDefault(startDate, DailyEvents.create(startDate));
+                DailyEvents mergedDailyEvent = prevEvent.mergeWith(event);
+                dailyEventsMap.putIfAbsent(startDate, mergedDailyEvent);
             }
             result.append(String.format("%-10s | %-13s | %-13s | %-13s | %-13s | %-4s%n",
                     "Date", "lesson", "practice", "test", "unknown", "total"));

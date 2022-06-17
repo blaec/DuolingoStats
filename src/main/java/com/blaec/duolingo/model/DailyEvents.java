@@ -11,35 +11,48 @@ public class DailyEvents {
     private final Map<String, Long> dailyCountByType;
     private Long totalXp;
 
-    private DailyEvents(LocalDate date, String event, Long xp) {
+    private DailyEvents(LocalDate date) {
         this.date = date;
         this.dailyXpByType = new HashMap<>();
-        this.dailyXpByType.put(event, xp);
         this.dailyCountByType = new HashMap<>();
+        this.totalXp = 0L;
+    }
+
+    private DailyEvents(LocalDate date, String event, Long xp) {
+        this(date);
+        this.dailyXpByType.put(event, xp);
         this.dailyCountByType.put(event, 1L);
         this.totalXp = xp;
     }
 
-    // TODO probably merge will work here
+    public DailyEvents(LocalDate date, Map<String, Long> dailyXpByType, Map<String, Long> dailyCountByType, Long totalXp) {
+        this.date = date;
+        this.dailyXpByType = dailyXpByType;
+        this.dailyCountByType = dailyCountByType;
+        this.totalXp = totalXp;
+    }
+
+    public static DailyEvents create(LocalDate date) {
+        return new DailyEvents(date);
+    }
+
     public DailyEvents mergeWith(Event event) {
-        String type = generateType(event.getType());
-        Long xp = event.getXp();
-        if (this.dailyXpByType.containsKey(type)) {
-            this.dailyXpByType.replace(type, this.dailyXpByType.get(type) + xp);
-        } else {
-            this.dailyXpByType.put(type, xp);
-        }
-        if (this.dailyCountByType.containsKey(type)) {
-            this.dailyCountByType.replace(type, this.dailyCountByType.get(type) + 1);
-        } else {
-            this.dailyCountByType.put(type, 1L);
-        }
-        this.totalXp += event.getXp();
-        return this;
+        final String type = generateType(event.getType());
+        final Long xp = event.getXp();
+
+        this.dailyXpByType.merge(type, xp, Long::sum);
+        this.dailyCountByType.merge(type, 1L, Long::sum);
+        this.totalXp += xp;
+
+        return new DailyEvents(this.date, this.dailyXpByType, this.dailyCountByType, this.totalXp);
     }
 
     public static DailyEvents from(Event event) {
-        return new DailyEvents(event.calcStartDay(), generateType(event.getType()), event.getXp());
+        return new DailyEvents(
+                event.calcStartDay(),
+                generateType(event.getType()),
+                event.getXp()
+        );
     }
 
     private static String generateType(String type) {
