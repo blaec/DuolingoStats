@@ -22,7 +22,7 @@ public class DailyEvents {
 
     // TODO probably merge will work here
     public DailyEvents mergeWith(Event event) {
-        String type = Optional.ofNullable(event.getType()).orElse("unknown");
+        String type = generateType(event.getType());
         Long xp = event.getXp();
         if (this.dailyXpByType.containsKey(type)) {
             this.dailyXpByType.replace(type, this.dailyXpByType.get(type) + xp);
@@ -39,7 +39,11 @@ public class DailyEvents {
     }
 
     public static DailyEvents from(Event event) {
-        return new DailyEvents(event.calcStartDay(), event.getType(), event.getXp());
+        return new DailyEvents(event.calcStartDay(), generateType(event.getType()), event.getXp());
+    }
+
+    private static String generateType(String type) {
+        return Optional.ofNullable(type).orElse("unknown");
     }
 
     public LocalDate getDate() {
