@@ -1,9 +1,5 @@
-package com.blaec.duolingo.model;
+package com.blaec.points.model;
 
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 public class Params {
     private final String language;
