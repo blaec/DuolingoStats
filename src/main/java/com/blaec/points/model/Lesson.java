@@ -1,17 +1,17 @@
 package com.blaec.points.model;
 
 
-public class Params {
+public class Lesson {
     private final String language;
     private final String link;
 
-    private Params(String language, String link) {
+    private Lesson(String language, String link) {
         this.language = language;
         this.link = link;
     }
 
-    public static Params create(String link, String lang) {
-        return new Params(lang, link);
+    public static Lesson create(String link, String lang) {
+        return new Lesson(lang, link);
     }
 
     public String getLanguage() {
