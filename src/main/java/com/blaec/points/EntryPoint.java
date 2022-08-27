@@ -14,8 +14,12 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -26,8 +30,11 @@ public class EntryPoint {
         addAll(portuguese);
 //            addAll(french);
     }};
-    public static int limit = 27;
+    private final static List<Integer> pointHistory = new ArrayList<>();
+    private final static List<Long> pauseHistory = new ArrayList<>();
+    public static int limit = 10;
     public static final int SLEEP_SECONDS = 120;
+    public static final int SLEEP_SHIFT_SECONDS = 60;
 
     public static void main(String[] args) throws Exception {
         JSONParser jsonParser = new JSONParser();
@@ -40,9 +47,22 @@ public class EntryPoint {
             limit = limit - awardedXp;
             count++;
 
-            long timeShift = ThreadLocalRandom.current().nextLong(0L, TimeUnit.SECONDS.toMillis(60));
+            long timeShift = ThreadLocalRandom.current().nextLong(0L, TimeUnit.SECONDS.toMillis(SLEEP_SHIFT_SECONDS));
             long sleepTime = TimeUnit.SECONDS.toMillis(SLEEP_SECONDS) + timeShift;
-            System.out.printf("#%3d > %d | %s | awarded: %2d | left: %4d | pause for %4ds.%n", count, response.code(), param, awardedXp, limit, sleepTime / 1000);
+
+            pointHistory.add(awardedXp);
+            OptionalDouble averagePoint = pointHistory.stream().mapToDouble(a -> a).average();
+            double avg = averagePoint.isPresent() ? averagePoint.getAsDouble() : 0;
+            double leftAttempts = limit / avg;
+
+            pauseHistory.add(sleepTime);
+            OptionalDouble averageTime = pauseHistory.stream().mapToDouble(a -> a).average();
+            double avgTime = averageTime.isPresent() ? averageTime.getAsDouble() : 0;
+                LocalDateTime eta = LocalDateTime.now().plus(Double.valueOf(avgTime * leftAttempts).longValue(), ChronoUnit.MILLIS);
+
+
+            System.out.printf("#%1$3d > %2$d | eta: [%3$.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds.%n",
+                    count, response.code(), leftAttempts, eta, param, awardedXp, limit, sleepTime / 1000);
             Thread.sleep(sleepTime);
         }
     }
