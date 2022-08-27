@@ -32,6 +32,8 @@ public class EntryPoint {
     private final static List<Integer> pointHistory = new ArrayList<>();
     private final static List<Long> pauseHistory = new ArrayList<>();
     private static int failCount = 0;
+    private static final int AVG_POINT = 20;
+
     public static int limit = 10;
     public static final int SLEEP_SECONDS = 120;
     public static final int SLEEP_SHIFT_SECONDS = 60;
@@ -73,7 +75,7 @@ public class EntryPoint {
     private static double getLeftAttempts(int awardedXp) {
         pointHistory.add(awardedXp);
         OptionalDouble averagePoint = pointHistory.stream().mapToDouble(a -> a).average();
-        double avg = averagePoint.isPresent() ? averagePoint.getAsDouble() : 0;
+        double avg = averagePoint.isPresent() ? averagePoint.getAsDouble() : AVG_POINT;
 
         return limit / avg;
     }
@@ -118,7 +120,7 @@ public class EntryPoint {
         } catch (Exception e) {
             failCount++;
             System.out.printf("%s | %s%n", e.getCause(), param);
-            return 20;
+            return AVG_POINT;
         }
     }
 
