@@ -45,7 +45,7 @@ public class EntryPoint {
             Param param = Param.create(stories);
             Response response = getResponse(param);
             int awardedXp = safeExtractAwardedXp(jsonParser, response, param);
-            if (awardedXp == 10) Param.skipStory(param);
+            if (awardedXp <= 12) Param.skipStory(param);
             limit = limit - awardedXp;
             count++;
 
