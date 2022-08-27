@@ -58,7 +58,7 @@ public class EntryPoint {
             LocalDateTime eta = getLocalDateTime(sleepTime, leftAttempts);
 
 
-            System.out.printf("#%1$3d > %2$d | eta: [%3$2.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | allowed fails left: %9$d%n",
+            System.out.printf("#%1$3d > %2$d | eta: [%3$4.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | allowed fails left: %9$d%n",
                     count, response.code(), leftAttempts, eta, param, awardedXp, limit, sleepTime / 1000, FAIL_LIMIT - failCount);
             Thread.sleep(sleepTime);
         }

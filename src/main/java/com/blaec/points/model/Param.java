@@ -15,7 +15,8 @@ public class Param {
     private final String mode;
     private final long startTime;
     private static int currentStory;
-    private static List<Integer> storiesToSkip = new ArrayList<>();
+    private static final List<Integer> storiesToSkip = new ArrayList<>();
+    private static final int MAX_TRY_SKIP = 10;
 
     private Param(String link, String lang, String mode, long startTime) {
         this.link = link;
@@ -28,10 +29,13 @@ public class Param {
         String mode = ThreadLocalRandom.current().nextBoolean()
                 ? "READ"
                 : "CONVERSATION";
-        int leftAttempts = 10;
+        int leftAttempts = MAX_TRY_SKIP;
         do {
-            leftAttempts--;
             currentStory = ThreadLocalRandom.current().nextInt(0, stories.size());
+            if (leftAttempts < MAX_TRY_SKIP) {
+                System.out.printf("Prevent taking skipped story: %d | left attemts: %d%n", currentStory, leftAttempts);
+            }
+            leftAttempts--;
         } while (storiesToSkip.contains(currentStory) || leftAttempts > 0);
         Story param = stories.get(currentStory);
 
@@ -47,7 +51,7 @@ public class Param {
 
     public static void skipStory(Param param) {
         storiesToSkip.add(currentStory);
-        System.out.printf("Skipped story: %s%n", param);
+        System.out.printf("Skipped story #%d: %s%n", currentStory, param);
     }
 
     public String getLink() {
