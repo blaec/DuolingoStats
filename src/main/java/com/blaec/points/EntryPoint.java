@@ -44,7 +44,7 @@ public class EntryPoint {
         while (limit > 0 || failCount > FAIL_LIMIT) {
             Param param = Param.create(lessons);
             Response response = getResponse(param);
-            int awardedXp = safeExtractAwardedXp(jsonParser, response);
+            int awardedXp = safeExtractAwardedXp(jsonParser, response, param);
             limit = limit - awardedXp;
             count++;
 
@@ -111,12 +111,12 @@ public class EntryPoint {
         return client.newCall(request).execute();
     }
 
-    private static int safeExtractAwardedXp(JSONParser jsonParser, Response response) {
+    private static int safeExtractAwardedXp(JSONParser jsonParser, Response response, Param param) {
         try {
             return extractAwardedXp(jsonParser, response);
         } catch (Exception e) {
             failCount++;
-            System.out.println(e.getMessage());
+            System.out.printf("%s | %s%n", e.getCause(), param);
             return 20;
         }
     }
