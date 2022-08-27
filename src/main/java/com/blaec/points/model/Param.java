@@ -31,10 +31,10 @@ public class Param {
                 : "CONVERSATION";
         int leftAttempts = MAX_TRY_SKIP;
         do {
-            currentStory = ThreadLocalRandom.current().nextInt(0, stories.size());
             if (leftAttempts < MAX_TRY_SKIP) {
                 System.out.printf("Prevent taking skipped story: %d | left attemts: %d%n", currentStory, leftAttempts);
             }
+            currentStory = ThreadLocalRandom.current().nextInt(0, stories.size());
             leftAttempts--;
         } while (storiesToSkip.contains(currentStory) && leftAttempts > 0);
         Story param = stories.get(currentStory);
