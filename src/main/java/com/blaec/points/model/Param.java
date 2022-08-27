@@ -25,7 +25,7 @@ public class Param {
         String mode = ThreadLocalRandom.current().nextBoolean()
                 ? "READ"
                 : "CONVERSATION";
-        int randomNum = ThreadLocalRandom.current().nextInt(0, lessons.size() + 1);
+        int randomNum = ThreadLocalRandom.current().nextInt(0, lessons.size());
         Lesson param = lessons.get(randomNum);
 
         return new Param(param.getLink(), param.getLanguage(), mode, evaluateStartTime());
@@ -56,6 +56,6 @@ public class Param {
 
     @Override
     public String toString() {
-        return String.format("%s | %s", link, mode);
+        return String.format("%-40s | %-12s", link, mode);
     }
 }

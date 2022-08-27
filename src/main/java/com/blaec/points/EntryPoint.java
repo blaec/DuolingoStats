@@ -31,16 +31,18 @@ public class EntryPoint {
 
     public static void main(String[] args) throws Exception {
         JSONParser jsonParser = new JSONParser();
+        int count = 0;
 
         while (limit > 0) {
             Param param = Param.create(lessons);
             Response response = getResponse(param);
             int awardedXp = extractAwardedXp(jsonParser, response);
             limit = limit - awardedXp;
+            count++;
 
             long timeShift = ThreadLocalRandom.current().nextLong(0L, TimeUnit.MINUTES.toMillis(1));
             long sleepTime = TimeUnit.MINUTES.toMillis(SLEEP) + timeShift;
-            System.out.printf("%d | %s | awarded: %d | left: %d | pause for %ds.%n", response.code(), param, awardedXp, limit, sleepTime / 1000);
+            System.out.printf("#%3d > %d | %s | awarded: %2d | left: %4d | pause for %3ds.%n", count, response.code(), param, awardedXp, limit, sleepTime / 1000);
             Thread.sleep(sleepTime);
         }
     }
