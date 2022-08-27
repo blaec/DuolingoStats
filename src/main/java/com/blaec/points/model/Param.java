@@ -36,7 +36,7 @@ public class Param {
                 System.out.printf("Prevent taking skipped story: %d | left attemts: %d%n", currentStory, leftAttempts);
             }
             leftAttempts--;
-        } while (storiesToSkip.contains(currentStory) || leftAttempts > 0);
+        } while (storiesToSkip.contains(currentStory) && leftAttempts > 0);
         Story param = stories.get(currentStory);
 
         return new Param(param.getLink(), param.getLanguage(), mode, evaluateStartTime());
