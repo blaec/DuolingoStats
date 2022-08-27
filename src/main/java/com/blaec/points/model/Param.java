@@ -51,7 +51,7 @@ public class Param {
 
     public static void skipStory(Param param) {
         storiesToSkip.add(currentStory);
-        System.out.printf("Skipped story #%d: %s%n", currentStory, param);
+        System.out.printf("Skipped story #%d: %s%n", currentStory, param.skippedToString());
     }
 
     public String getLink() {
@@ -73,5 +73,9 @@ public class Param {
     @Override
     public String toString() {
         return String.format("%-40s | %-12s", link, mode);
+    }
+
+    public String skippedToString() {
+        return String.format("%s <%s>", link, mode);
     }
 }
