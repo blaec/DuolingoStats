@@ -27,7 +27,7 @@ public class EntryPoint {
 //            addAll(french);
     }};
     public static int limit = 27;
-    public static final int SLEEP = 2;
+    public static final int SLEEP_SECONDS = 120;
 
     public static void main(String[] args) throws Exception {
         JSONParser jsonParser = new JSONParser();
@@ -40,9 +40,9 @@ public class EntryPoint {
             limit = limit - awardedXp;
             count++;
 
-            long timeShift = ThreadLocalRandom.current().nextLong(0L, TimeUnit.MINUTES.toMillis(1));
-            long sleepTime = TimeUnit.MINUTES.toMillis(SLEEP) + timeShift;
-            System.out.printf("#%3d > %d | %s | awarded: %2d | left: %4d | pause for %3ds.%n", count, response.code(), param, awardedXp, limit, sleepTime / 1000);
+            long timeShift = ThreadLocalRandom.current().nextLong(0L, TimeUnit.SECONDS.toMillis(60));
+            long sleepTime = TimeUnit.SECONDS.toMillis(SLEEP_SECONDS) + timeShift;
+            System.out.printf("#%3d > %d | %s | awarded: %2d | left: %4d | pause for %4ds.%n", count, response.code(), param, awardedXp, limit, sleepTime / 1000);
             Thread.sleep(sleepTime);
         }
     }

@@ -6,7 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.blaec.points.EntryPoint.SLEEP;
+import static com.blaec.points.EntryPoint.SLEEP_SECONDS;
 
 public class Param {
     private final String link;
@@ -32,7 +32,7 @@ public class Param {
     }
 
     private static long evaluateStartTime() {
-        LocalDateTime now = LocalDateTime.now().minusMinutes(SLEEP);
+        LocalDateTime now = LocalDateTime.now().minusSeconds(SLEEP_SECONDS);
         ZonedDateTime zdt = ZonedDateTime.of(now, ZoneId.systemDefault());
 
         return zdt.toInstant().toEpochMilli() / 1000;
