@@ -1,7 +1,7 @@
 package com.blaec.points;
 
 
-import com.blaec.points.model.Lesson;
+import com.blaec.points.model.Story;
 import com.blaec.points.model.Param;
 import okhttp3.*;
 import okio.Buffer;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
@@ -26,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static com.blaec.points.utils.Data.portuguese;
 
 public class EntryPoint {
-    private final static List<Lesson> lessons = new ArrayList<>() {{
+    private final static List<Story> lessons = new ArrayList<>() {{
         addAll(portuguese);
 //            addAll(french);
     }};

@@ -21,12 +21,12 @@ public class Param {
         this.startTime = startTime;
     }
 
-    public static Param create(List<Lesson> lessons) {
+    public static Param create(List<Story> lessons) {
         String mode = ThreadLocalRandom.current().nextBoolean()
                 ? "READ"
                 : "CONVERSATION";
         int randomNum = ThreadLocalRandom.current().nextInt(0, lessons.size());
-        Lesson param = lessons.get(randomNum);
+        Story param = lessons.get(randomNum);
 
         return new Param(param.getLink(), param.getLanguage(), mode, evaluateStartTime());
     }
