@@ -32,7 +32,8 @@ public class EntryPoint {
     }};
     private final static List<Integer> pointHistory = new ArrayList<>();
     private final static List<Long> pauseHistory = new ArrayList<>();
-    public static int limit = 10;
+    private static int failCount = 0;
+    public static int limit = 3000;
     public static final int SLEEP_SECONDS = 120;
     public static final int SLEEP_SHIFT_SECONDS = 60;
 
@@ -40,10 +41,10 @@ public class EntryPoint {
         JSONParser jsonParser = new JSONParser();
         int count = 0;
 
-        while (limit > 0) {
+        while (limit > 0 || failCount > 10) {
             Param param = Param.create(lessons);
             Response response = getResponse(param);
-            int awardedXp = extractAwardedXp(jsonParser, response);
+            int awardedXp = safeExtractAwardedXp(jsonParser, response);
             limit = limit - awardedXp;
             count++;
 
@@ -61,8 +62,8 @@ public class EntryPoint {
                 LocalDateTime eta = LocalDateTime.now().plus(Double.valueOf(avgTime * leftAttempts).longValue(), ChronoUnit.MILLIS);
 
 
-            System.out.printf("#%1$3d > %2$d | eta: [%3$.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds.%n",
-                    count, response.code(), leftAttempts, eta, param, awardedXp, limit, sleepTime / 1000);
+            System.out.printf("#%1$3d > %2$d | eta: [%3$.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | fails: %9$d%n",
+                    count, response.code(), leftAttempts, eta, param, awardedXp, limit, sleepTime / 1000, failCount);
             Thread.sleep(sleepTime);
         }
     }
@@ -99,6 +100,16 @@ public class EntryPoint {
                 .build();
 
         return client.newCall(request).execute();
+    }
+
+    private static int safeExtractAwardedXp(JSONParser jsonParser, Response response) {
+        try {
+            return extractAwardedXp(jsonParser, response);
+        } catch (Exception e) {
+            failCount++;
+            System.out.println(e.getMessage());
+            return 20;
+        }
     }
 
     private static int extractAwardedXp(JSONParser jsonParser, Response response) throws IOException, ParseException {
