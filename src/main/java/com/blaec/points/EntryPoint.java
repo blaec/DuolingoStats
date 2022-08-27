@@ -32,15 +32,16 @@ public class EntryPoint {
     private final static List<Integer> pointHistory = new ArrayList<>();
     private final static List<Long> pauseHistory = new ArrayList<>();
     private static int failCount = 0;
-    public static int limit = 3000;
+    public static int limit = 10;
     public static final int SLEEP_SECONDS = 120;
     public static final int SLEEP_SHIFT_SECONDS = 60;
+    public static final int FAIL_LIMIT = 10;
 
     public static void main(String[] args) throws Exception {
         JSONParser jsonParser = new JSONParser();
         int count = 0;
 
-        while (limit > 0 || failCount > 10) {
+        while (limit > 0 || failCount > FAIL_LIMIT) {
             Param param = Param.create(lessons);
             Response response = getResponse(param);
             int awardedXp = safeExtractAwardedXp(jsonParser, response);
@@ -50,21 +51,30 @@ public class EntryPoint {
             long timeShift = ThreadLocalRandom.current().nextLong(0L, TimeUnit.SECONDS.toMillis(SLEEP_SHIFT_SECONDS));
             long sleepTime = TimeUnit.SECONDS.toMillis(SLEEP_SECONDS) + timeShift;
 
-            pointHistory.add(awardedXp);
-            OptionalDouble averagePoint = pointHistory.stream().mapToDouble(a -> a).average();
-            double avg = averagePoint.isPresent() ? averagePoint.getAsDouble() : 0;
-            double leftAttempts = limit / avg;
-
-            pauseHistory.add(sleepTime);
-            OptionalDouble averageTime = pauseHistory.stream().mapToDouble(a -> a).average();
-            double avgTime = averageTime.isPresent() ? averageTime.getAsDouble() : 0;
-                LocalDateTime eta = LocalDateTime.now().plus(Double.valueOf(avgTime * leftAttempts).longValue(), ChronoUnit.MILLIS);
+            double leftAttempts = getLeftAttempts(awardedXp);
+            LocalDateTime eta = getLocalDateTime(sleepTime, leftAttempts);
 
 
-            System.out.printf("#%1$3d > %2$d | eta: [%3$.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | fails: %9$d%n",
-                    count, response.code(), leftAttempts, eta, param, awardedXp, limit, sleepTime / 1000, failCount);
+            System.out.printf("#%1$3d > %2$d | eta: [%3$.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | allowed fails left: %9$d%n",
+                    count, response.code(), leftAttempts, eta, param, awardedXp, limit, sleepTime / 1000, FAIL_LIMIT - failCount);
             Thread.sleep(sleepTime);
         }
+    }
+
+    private static LocalDateTime getLocalDateTime(long sleepTime, double leftAttempts) {
+        pauseHistory.add(sleepTime);
+        OptionalDouble averageTime = pauseHistory.stream().mapToDouble(a -> a).average();
+        double avgTime = averageTime.isPresent() ? averageTime.getAsDouble() : 0;
+
+        return LocalDateTime.now().plus(Double.valueOf(avgTime * leftAttempts).longValue(), ChronoUnit.MILLIS);
+    }
+
+    private static double getLeftAttempts(int awardedXp) {
+        pointHistory.add(awardedXp);
+        OptionalDouble averagePoint = pointHistory.stream().mapToDouble(a -> a).average();
+        double avg = averagePoint.isPresent() ? averagePoint.getAsDouble() : 0;
+
+        return limit / avg;
     }
 
     @NotNull
