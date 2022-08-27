@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +46,10 @@ public class EntryPoint {
 
         while (limit > 0 || failCount > FAIL_LIMIT) {
             Param param = Param.create(stories);
-            Response response = getResponse(param);
+            Optional<Response> tryResponse = safeGetResponse(param);
+            if (tryResponse.isEmpty()) continue;
+
+            Response response = tryResponse.get();
             int awardedXp = safeExtractAwardedXp(jsonParser, response, param);
             if (awardedXp <= 12) Param.skipStory(param);
             limit = limit - awardedXp;
@@ -78,6 +82,16 @@ public class EntryPoint {
         double avg = averagePoint.isPresent() ? averagePoint.getAsDouble() : AVG_POINT;
 
         return limit / avg;
+    }
+
+    private static Optional<Response> safeGetResponse(Param param) {
+        try {
+            return Optional.of(getResponse(param));
+        } catch (Exception e) {
+            failCount++;
+            System.out.printf("%s | %s%n", e.getCause(), param);
+            return Optional.empty();
+        }
     }
 
     @NotNull
