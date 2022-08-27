@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static com.blaec.points.utils.Data.portuguese;
 
 public class EntryPoint {
-    private final static List<Story> lessons = new ArrayList<>() {{
+    private final static List<Story> stories = new ArrayList<>() {{
         addAll(portuguese);
 //            addAll(french);
     }};
@@ -42,9 +42,10 @@ public class EntryPoint {
         int count = 0;
 
         while (limit > 0 || failCount > FAIL_LIMIT) {
-            Param param = Param.create(lessons);
+            Param param = Param.create(stories);
             Response response = getResponse(param);
             int awardedXp = safeExtractAwardedXp(jsonParser, response, param);
+            if (awardedXp == 10) Param.skipStory(param);
             limit = limit - awardedXp;
             count++;
 
@@ -55,7 +56,7 @@ public class EntryPoint {
             LocalDateTime eta = getLocalDateTime(sleepTime, leftAttempts);
 
 
-            System.out.printf("#%1$3d > %2$d | eta: [%3$.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | allowed fails left: %9$d%n",
+            System.out.printf("#%1$3d > %2$d | eta: [%3$2.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | allowed fails left: %9$d%n",
                     count, response.code(), leftAttempts, eta, param, awardedXp, limit, sleepTime / 1000, FAIL_LIMIT - failCount);
             Thread.sleep(sleepTime);
         }

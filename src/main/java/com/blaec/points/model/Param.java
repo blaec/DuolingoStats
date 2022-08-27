@@ -3,6 +3,7 @@ package com.blaec.points.model;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -13,6 +14,8 @@ public class Param {
     private final String lang;
     private final String mode;
     private final long startTime;
+    private static int currentStory;
+    private static List<Integer> storiesToSkip = new ArrayList<>();
 
     private Param(String link, String lang, String mode, long startTime) {
         this.link = link;
@@ -21,12 +24,16 @@ public class Param {
         this.startTime = startTime;
     }
 
-    public static Param create(List<Story> lessons) {
+    public static Param create(List<Story> stories) {
         String mode = ThreadLocalRandom.current().nextBoolean()
                 ? "READ"
                 : "CONVERSATION";
-        int randomNum = ThreadLocalRandom.current().nextInt(0, lessons.size());
-        Story param = lessons.get(randomNum);
+        int leftAttempts = 10;
+        do {
+            leftAttempts--;
+            currentStory = ThreadLocalRandom.current().nextInt(0, stories.size());
+        } while (storiesToSkip.contains(currentStory) || leftAttempts > 0);
+        Story param = stories.get(currentStory);
 
         return new Param(param.getLink(), param.getLanguage(), mode, evaluateStartTime());
     }
@@ -36,6 +43,11 @@ public class Param {
         ZonedDateTime zdt = ZonedDateTime.of(now, ZoneId.systemDefault());
 
         return zdt.toInstant().toEpochMilli() / 1000;
+    }
+
+    public static void skipStory(Param param) {
+        storiesToSkip.add(currentStory);
+        System.out.printf("Skipped story: %s%n", param);
     }
 
     public String getLink() {
