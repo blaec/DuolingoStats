@@ -35,8 +35,8 @@ public class ShowStats {
 
         // TODO get data from web and save to file
         // TODO get file by request
-//        try (FileReader reader = new FileReader(".files/kecham.json")) {
-        try (FileReader reader = new FileReader(".files/me.json")) {
+        try (FileReader reader = new FileReader(".files/sandrine442218.json")) {
+//        try (FileReader reader = new FileReader(".files/me.json")) {
             JSONArray duolingoList = new JSONArray();
             duolingoList.add(jsonParser.parse(reader));
             JSONArray calendarList = (JSONArray) ((JSONObject) duolingoList.get(0)).get("calendar");

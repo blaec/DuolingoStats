@@ -14,8 +14,12 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,26 +27,38 @@ import java.util.OptionalDouble;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import static com.blaec.points.utils.Data.french;
 import static com.blaec.points.utils.Data.portuguese;
 
 public class EntryPoint {
     private final static List<Story> stories = new ArrayList<>() {{
         addAll(portuguese);
-//            addAll(french);
+//        addAll(french);
     }};
     private final static List<Integer> pointHistory = new ArrayList<>();
     private final static List<Long> pauseHistory = new ArrayList<>();
     private static int failCount = 0;
-    private static final int AVG_POINT = 20;
+    private static final int AVG_POINT = 25;
 
-    public static int limit = 10;
-    public static final int SLEEP_SECONDS = 120;
-    public static final int SLEEP_SHIFT_SECONDS = 60;
-    public static final int FAIL_LIMIT = 10;
+    public static int limit = 2962;
+    public static final int SLEEP_SECONDS = 90;
+    public static final int SLEEP_SHIFT_SECONDS = 100;
+    public static final int FAIL_LIMIT = 20;
 
     public static void main(String[] args) throws Exception {
         JSONParser jsonParser = new JSONParser();
         int count = 0;
+
+        LocalDateTime start = LocalDateTime.of(2022, 9, 23, 17, 0);
+        int duration = limit / 25 * (SLEEP_SECONDS + (SLEEP_SHIFT_SECONDS / 2));
+        while (LocalDateTime.now().isBefore(start)) {
+            System.out.printf("Start at %1$tF %1$tT in %2$d minutes - ETA %3$tF %3$tT | sleep for 1 minute%n",
+                    start,
+                    Duration.between(LocalDateTime.now(),start).toMinutes(),
+                    start.plus(duration, ChronoUnit.SECONDS)
+            );
+            Thread.sleep(60000);
+        }
 
         while (limit > 0 || failCount > FAIL_LIMIT) {
             Param param = Param.create(stories);
@@ -62,8 +78,18 @@ public class EntryPoint {
             LocalDateTime eta = getLocalDateTime(sleepTime, leftAttempts);
 
 
-            System.out.printf("#%1$3d > %2$d | eta: [%3$4.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | allowed fails left: %9$d%n",
-                    count, response.code(), leftAttempts, eta, param, awardedXp, limit, sleepTime / 1000, FAIL_LIMIT - failCount);
+            System.out.printf(
+                    "#%1$3d > %2$d | eta: [%3$4.1f] %4$tF %4$tT | %5$s | awarded: %6$2d | left: %7$4d | pause for %8$4ds. | allowed fails left: %9$d | next hit: %10$tF %10$tT%n",
+                    count,
+                    response.code(),
+                    leftAttempts,
+                    eta,
+                    param,
+                    awardedXp,
+                    limit,
+                    sleepTime / 1000, FAIL_LIMIT - failCount,
+                    LocalDateTime.now().plus(sleepTime, ChronoUnit.MILLIS)
+            );
             Thread.sleep(sleepTime);
         }
     }
@@ -134,7 +160,7 @@ public class EntryPoint {
         } catch (Exception e) {
             failCount++;
             System.out.printf("%s | %s%n", e.getCause(), param);
-            return AVG_POINT;
+            return 0;
         }
     }
 

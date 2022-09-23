@@ -49,7 +49,7 @@ public class Data {
             Story.create("pt-en-um-jogo-importante", "pt"),                 // 13.1 | 18/20[+10]
             Story.create("pt-en-o-cafe-da-manha-do-junior", "pt"),          // 13.2 | 18/20[+10]
             Story.create("pt-en-a-minha-primeira-pintura", "pt"),           // 13.3 | 18/20[+10]
-            Story.create("pt-en-o-tax", "pt"),                              // 13.4 | 18/20[+10]
+            Story.create("pt-en-o-taxi", "pt"),                              // 13.4 | 18/20[+10]
             Story.create("pt-en-uma-emergencia", "pt"),                     // 14.1 | 18/20[+10]
             Story.create("pt-en-uma-carta-de-amor", "pt"),                  // 14.2 | 18/20[+10]
             Story.create("pt-en-as-plantas-de-vikram", "pt"),               // 14.3 | 18/20[+10]
