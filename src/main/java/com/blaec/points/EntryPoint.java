@@ -1,8 +1,8 @@
 package com.blaec.points;
 
 
-import com.blaec.points.model.Story;
 import com.blaec.points.model.Param;
+import com.blaec.points.model.Story;
 import okhttp3.*;
 import okio.Buffer;
 import okio.BufferedSource;
@@ -15,19 +15,16 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
-import static com.blaec.points.utils.Data.french;
 import static com.blaec.points.utils.Data.portuguese;
 
 public class EntryPoint {
@@ -38,9 +35,9 @@ public class EntryPoint {
     private final static List<Integer> pointHistory = new ArrayList<>();
     private final static List<Long> pauseHistory = new ArrayList<>();
     private static int failCount = 0;
-    private static final int AVG_POINT = 25;
+    private static final int AVG_POINT = 28;
 
-    public static int limit = 2962;
+    public static int limit = 167*2-90;
     public static final int SLEEP_SECONDS = 90;
     public static final int SLEEP_SHIFT_SECONDS = 100;
     public static final int FAIL_LIMIT = 20;
@@ -49,15 +46,18 @@ public class EntryPoint {
         JSONParser jsonParser = new JSONParser();
         int count = 0;
 
-        LocalDateTime start = LocalDateTime.of(2022, 9, 23, 17, 0);
-        int duration = limit / 25 * (SLEEP_SECONDS + (SLEEP_SHIFT_SECONDS / 2));
+        LocalDateTime start = LocalDateTime.of(2022, 10, 11, 20, 31);
+        int duration = limit / AVG_POINT * (SLEEP_SECONDS + (SLEEP_SHIFT_SECONDS / 2));
         while (LocalDateTime.now().isBefore(start)) {
-            System.out.printf("Start at %1$tF %1$tT in %2$d minutes - ETA %3$tF %3$tT | sleep for 1 minute%n",
+            long delay = Duration.between(LocalDateTime.now(), start).toMinutes();
+            long sleep = calcSleep(delay) * 60_000;
+            System.out.printf("Start at %1$tF %1$tT in %2$d minute(s) - ETA %3$tF %3$tT | sleep for %4$d minute(s)%n",
                     start,
-                    Duration.between(LocalDateTime.now(),start).toMinutes(),
-                    start.plus(duration, ChronoUnit.SECONDS)
+                    delay,
+                    start.plus(duration, ChronoUnit.SECONDS),
+                    sleep / 60000
             );
-            Thread.sleep(60000);
+            Thread.sleep(sleep);
         }
 
         while (limit > 0 || failCount > FAIL_LIMIT) {
@@ -174,5 +174,12 @@ public class EntryPoint {
         resultArray.add(jsonParser.parse(result));
 
         return Integer.parseInt(String.valueOf(((JSONObject) resultArray.get(0)).get("awardedXp")));
+    }
+
+    public static long calcSleep(long delay) {
+        return Stream.of(1000L, 100L, 10L, 1L)
+                .map(m -> (long) Math.round(delay / m) * m)
+                .filter(s -> s > 0)
+                .findFirst().orElse(1L);
     }
 }
